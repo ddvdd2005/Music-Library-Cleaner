@@ -348,7 +348,7 @@ else:
     Path=raw_input("What is the location of the file with the list of audio files?\n")
 Path2=raw_input("Where would you like to save the songs?\n")
 print("How would you like to choose which files to keep when duplicates are met?\n")
-print "1. Manually\n2. The one with the best bitrate\n3. The longest one\n4. The biggest one\b"
+print "1. Manually\n2. The one with the best bitrate\n3. The longest one\n4. The biggest one\n"
 Question1=int(raw_input("Please choose a number\n"))
 while Question1 not in [1,2,3,4]:
     Question1=int(raw_input("The choice is not valid. Please choose again\n"))
