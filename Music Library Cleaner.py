@@ -1,7 +1,9 @@
 import mutagen
 from mutagen.flac import FLAC
-from mutagen.mp3 import EasyMP3 as EasyMP3
+from mutagen.mp3 import EasyMP3
 from mutagen.mp3 import MP3
+from mutagen.easymp4 import EasyMP4
+from mutagen.mp4 import MP4
 from tkinter import *
 from tkinter import ttk
 import io
@@ -46,6 +48,22 @@ def mp3Combine(path): #create from the path of the song a string which includes 
             except KeyError:
                 print path + " does have neither a title tag nor an artist tag"
 
+def mp4Combine(path): #create from the path of the song a string which includes artist and title when the song is a mp4
+    aa= EasyMP4(path)
+    try:
+        return aa["title"][0]+" "+aa["artist"][0]
+    except KeyError:
+        try:
+            title= aa["title"][0]
+            print path + " does not have an artist tag"
+            return title
+        except KeyError:
+            print path + " does not have a title tag"
+            try:
+                return aa["artist"][0]
+            except KeyError:
+                print path + " does have neither a title tag nor an artist tag"
+
 def compare(song,list,threshold=0.075): #compare the string with a list of strings of other songs
     for elem in list:
         if strcomp(song.name,elem.name)<threshold:
@@ -74,6 +92,9 @@ class Song: #every song is a class by itself
         elif ".mp3" in path:
             self.name=strip(mp3Combine(path))
             self.type="MP3"
+        elif ".m4a" in path:
+            self.name=strip(mp4Combine(path))
+            self.type="MP4"
         else:
             print path+"is of an unsupported format"
         self.isDupe=False #is it a duplicate of another song
@@ -94,18 +115,24 @@ class Song: #every song is a class by itself
             return mutagen.File(self.path)["title"][0]
         elif self.type=="MP3":
             return EasyMP3(self.path)["title"][0]
+        elif self.type=="MP4":
+            return EasyMP4(self.path)["title"][0]
 
     def getArtist(self): #get the artist
         if self.type=="FLAC":
             return mutagen.File(self.path)["artist"][0]
         elif self.type=="MP3":
             return EasyMP3(self.path)["artist"][0]
+        elif self.type=="MP4":
+            return EasyMP4(self.path)["artist"][0]
 
     def getLength(self): #get the length
         if self.type=="FLAC":
             return FLAC(self.path).info.length
         elif self.type=="MP3":
             return MP3(self.path).info.length
+        elif self.type=="MP4":
+            return MP4(self.path).info.length
 
     def getSize(self): #get the size
         import os
@@ -319,6 +346,9 @@ Question1=int(raw_input("Please choose a number\n"))
 while Question1 not in [1,2,3,4]:
     Question1=int(raw_input("The choice is not valid. Please choose again\n"))
 List=createList(read(Path))
+List3=[]
+for elem in List2:
+    List3.append(elem)
 compareEverything(List,List2)
-List=compareDupes(List+List2,Question1)
+List=compareDupes(List+List3,Question1)
 createFile(List,Path2)
