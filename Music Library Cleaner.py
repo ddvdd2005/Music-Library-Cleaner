@@ -66,13 +66,16 @@ def mp4Combine(path): #create from the path of the song a string which includes 
 
 def compare(song,list,threshold=0.075): #compare the string with a list of strings of other songs
     for elem in list:
-        if strcomp(song.name,elem.name)<threshold:
-            if not(elem.isDupe): #if the song compared to is not a dupe
-                song.duplicate(elem)
-                elem.duplicated(song)
-            elif elem.dupes[0] not in song.dupes:  #if the song compared to is a dupe, compare it to the original
-                song.duplicate(elem.dupes[0])
-                elem.dupes[0].duplicated(song)
+        try:
+            if strcomp(song.name,elem.name)<threshold:
+                if not(elem.isDupe): #if the song compared to is not a dupe
+                    song.duplicate(elem)
+                    elem.duplicated(song)
+                elif elem.dupes[0] not in song.dupes:  #if the song compared to is a dupe, compare it to the original
+                    song.duplicate(elem.dupes[0])
+                    elem.dupes[0].duplicated(song)
+        except AttributeError:
+            print song.path + "does not have a name"
 
 def strcomp(str1,str2): #compare one string with another and find how alike they are
     total_length=len(str1)+len(str2)
