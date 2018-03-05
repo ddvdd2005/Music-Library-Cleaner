@@ -69,8 +69,12 @@ def compare(song,list,threshold=0.075): #compare the string with a list of strin
         try:
             if strcomp(song.name,elem.name)<threshold:
                 if not(elem.isDupe): #if the song compared to is not a dupe
-                    song.duplicate(elem)
-                    elem.duplicated(song)
+                    if not(song.isDupe):
+                        song.duplicate(elem)
+                        elem.duplicated(song)
+                    else:
+                        elem.duplicate(song.dupes[0])
+                        song.dupes[0].duplicated(elem)
                 elif elem.dupes[0] not in song.dupes:  #if the song compared to is a dupe, compare it to the original
                     song.duplicate(elem.dupes[0])
                     elem.dupes[0].duplicated(song)
