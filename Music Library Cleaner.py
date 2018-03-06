@@ -187,9 +187,18 @@ def compareEverything(list,list2): #compare every audio file in the list with on
         print str(i)+"/"+str(len(list))+" done"
         i+=1
 
-def createGUI(song): #create a GUI with choices of dupes
+def createGUI(song,xres): #create a GUI with choices of dupes
+    def myfunction(event):
+        canvas.configure(scrollregion=canvas.bbox("all"),width=(xres-40),height=315)
+    def _on_mousewheel(event):
+        canvas.xview_scroll(-1*(event.delta/120), "units")
     root = Tk()
     root.title("Choose Which Ones to Keep")
+    sizex = xres-15
+    sizey = 350
+    posx  = 0
+    posy  = 0
+    root.wm_geometry("%dx%d+%d+%d" % (sizex, sizey, posx, posy))
     lchoices=[song]
     templist=findBestBitrate(song)
     for elem in templist:
@@ -213,10 +222,20 @@ def createGUI(song): #create a GUI with choices of dupes
         dictionnary[temp]=elem
         num+=1
     num=1
-    mainframe = ttk.Frame(root, padding="3 3 12 12")
+    myframe=Frame(root,width=50,height=200,bd=1)
+    myframe.place(x=10,y=10)
+    canvas=Canvas(myframe)
+    mainframe = ttk.Frame(canvas, padding="3 3 12 12")
     mainframe.grid(column=0, row=0, sticky=(N, W, E, S))
     mainframe.columnconfigure(0, weight=1)
     mainframe.rowconfigure(0, weight=1)
+    myscrollbar=Scrollbar(myframe,orient="horizontal",command=canvas.xview)
+    canvas.configure(xscrollcommand=myscrollbar.set)
+    myscrollbar.pack(side="bottom",fill="x")
+    canvas.pack(side="right")
+    canvas.create_window((0,0),window=mainframe,anchor='nw')
+    mainframe.bind("<Configure>",myfunction)
+    mainframe.bind_all("<MouseWheel>", _on_mousewheel)
     ttk.Label(mainframe, text="Path").grid(column=1, row=2, sticky=(E))
     ttk.Label(mainframe, text="Title").grid(column=1, row=3, sticky=(E))
     ttk.Label(mainframe, text="Artist").grid(column=1, row=4, sticky=(E))
@@ -252,7 +271,7 @@ def createGUI(song): #create a GUI with choices of dupes
             endChoices.append(val)
     return endChoices
 
-def compareDupes(list,choice): #check the list for dupes and send them to create GUI to let the user choose which one to keep and return a list with only selected dupes
+def compareDupes(list,choice,xres=1920): #check the list for dupes and send them to create GUI to let the user choose which one to keep and return a list with only selected dupes
     newList=[]
     total=str(countDupes(list))
     i=1
@@ -261,15 +280,18 @@ def compareDupes(list,choice): #check the list for dupes and send them to create
         if not(elem.isDupe):
             if len(elem.dupes)!=0:
                 if choice==1:
-                    chosenOnes=createGUI(elem)
+                    chosenOnes=createGUI(elem,xres)
                     for elem2 in chosenOnes:
                         newList.append(elem2)
                 elif choice==2:
-                    newList.append(findBestBitrate(elem))
+                    for song in findBestBitrate(elem):
+                        newList.append(song)
                 elif choice==3:
-                    newList.append(findBestLength(elem))
+                    for song in findBestLength(elem):
+                        newList.append(song)
                 elif choice==4:
-                    newList.append(findBestSize(elem))
+                    for song in findBestSize(elem):
+                        newList.append(song)
                 print str(i)+"/"+total+" done"
                 i+=1
             else:
@@ -338,9 +360,9 @@ def timeConverter(time): #converts a time from seconds to hours, minutes and sec
 print("Do you have a file with a list of audio files without dupes?\n")
 List2=[]
 Question0=raw_input("Y/N\n")
-while Question0 not in ["Y","N","y","n"]:
+while Question0 not in ["Y","N","y","n","yes","Yes","YES","No","no","NO"]:
     Question0=raw_input("The choice is not valid. Please choose again\n")
-if Question0=="Y" or Question0=="y":
+if Question0 in ["Y","y","yes","Yes","YES"]:
     Path1=raw_input("What is the location of that file?\n")
     List2=createList(read(Path1))
     Path=raw_input("What is the location of the audio files that need to be analysed?\n")
@@ -357,5 +379,9 @@ List3=[]
 for elem in List2:
     List3.append(elem)
 compareEverything(List,List2)
-List=compareDupes(List+List3,Question1)
+if Question1==1:
+    Question2=int(raw_input("What is the horizontal size of your screen resolution?\n"))
+    List=compareDupes(List+List3,Question1,Question2)
+else:
+    List=compareDupes(List+List3,Question1)
 createFile(List,Path2)
