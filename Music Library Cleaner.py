@@ -346,10 +346,10 @@ def findBestSize(song): #amongst the dupes of one song, find the one with the bi
     return end
 
 def createFile(list,path): #Create a m3u file at the selected path
-    f= open(path,"w+")
-    for elem in list:
-        f.write(elem.path+"\n")
-    f.close()
+    with io.open(path, 'w+', encoding='utf-8-sig') as file:
+        for elem in list:
+            file.write(elem.path+"\n")
+        file.close()
 
 def timeConverter(time): #converts a time from seconds to hours, minutes and seconds
     if time>3600:
