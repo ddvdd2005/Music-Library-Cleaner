@@ -1,3 +1,5 @@
+#!/usr/bin/env python2
+
 import mutagen
 from mutagen.flac import FLAC
 from mutagen.mp3 import EasyMP3
